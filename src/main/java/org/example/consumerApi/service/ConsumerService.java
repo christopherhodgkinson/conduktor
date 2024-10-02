@@ -16,21 +16,24 @@ public class ConsumerService {
 
     private static final Logger log = LoggerFactory.getLogger(ConsumerService.class);
     private final KafkaConsumerDAO kafkaConsumerDAO;
+    private final KafkaAdminDAO kafkaAdminDAO;
 
-    public ConsumerService(KafkaConsumerDAO kafkaConsumerDAO){
+
+    public ConsumerService(KafkaConsumerDAO kafkaConsumerDAO, KafkaAdminDAO kafkaAdminDAO){
         this.kafkaConsumerDAO = kafkaConsumerDAO;
+        this.kafkaAdminDAO = kafkaAdminDAO;
     }
 
     public List<ConsumerRecord<String, String>> retrieveRecords(String topic, Integer offset, Integer amount) {
 
-        if(!KafkaAdminDAO.checkTopicExists(topic)){
+        if(!kafkaAdminDAO.checkTopicExists(topic)){
             log.error("Topic does not exist: "+ topic);
             throw new UnknownTopicOrPartitionException("Topic does not exist: "+ topic);
         }
         log.info("Topic does exist: "+ topic);
 
         // assign partitions to consumer
-        List<TopicPartition> partitionList = KafkaAdminDAO.getPartitions(topic);
+        List<TopicPartition> partitionList = kafkaAdminDAO.getPartitions(topic);
         kafkaConsumerDAO.assignPartitions(partitionList);
 
         // exception when offset is larger than what is available for at least one partition

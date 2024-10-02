@@ -20,4 +20,10 @@ public class KafkaConfig {
         return props;
     }
 
+    public static Properties getAdminConfig(){
+        Properties propsAdminClient = new Properties();
+        propsAdminClient.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaConfig.KAFKA_SERVERS);
+        return propsAdminClient;
+    }
+
 }

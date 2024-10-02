@@ -1,7 +1,8 @@
 package org.example.consumerApi.controllers;
 
+import org.apache.kafka.clients.admin.KafkaAdminClient;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.example.consumerApi.dao.KafkaAdminDAO;
 import org.example.consumerApi.dao.KafkaConfig;
 import org.example.consumerApi.dao.KafkaConsumerDAO;
 import org.example.consumerApi.service.ConsumerService;
@@ -27,7 +28,10 @@ public class ConsumerController {
         }
 
         // process request
-        ConsumerService consumerService = new ConsumerService(new KafkaConsumerDAO(KafkaConsumerDAO.consumerFactory()));
+        ConsumerService consumerService = new ConsumerService(
+                new KafkaConsumerDAO(KafkaConsumerDAO.consumerFactory()),
+                new KafkaAdminDAO(KafkaAdminClient.create(KafkaConfig.getAdminConfig()))
+        );
         List<ConsumerRecord<String, String>> outputList = consumerService.retrieveRecords(topicName, offset, count);
 
         // handle output format

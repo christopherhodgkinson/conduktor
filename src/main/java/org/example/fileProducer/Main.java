@@ -1,10 +1,12 @@
 package org.example.fileProducer;
 
+import org.apache.kafka.clients.admin.KafkaAdminClient;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.config.TopicConfig;
 import org.example.consumerApi.dao.KafkaAdminDAO;
+import org.example.consumerApi.dao.KafkaConfig;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -32,8 +34,10 @@ public class Main {
             throw new RuntimeException(e);
         }
 
+        KafkaAdminDAO kafkaAdminDAO = new KafkaAdminDAO(KafkaAdminClient.create(KafkaConfig.getAdminConfig()));
+
         NewTopic newTopic = new NewTopic(TOPIC_NAME, 3, (short) 1);
-        KafkaAdminDAO.createTopic(newTopic, TopicConfig.CLEANUP_POLICY_DELETE);
+        kafkaAdminDAO.createTopic(newTopic, TopicConfig.CLEANUP_POLICY_DELETE);
 
         KafkaProducer<String, String> producer = KafkaProducerDAO.getProducer();
 
