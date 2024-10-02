@@ -32,10 +32,6 @@ public class Main {
             throw new RuntimeException(e);
         }
 
-        // move to class
-
-
-
         NewTopic newTopic = new NewTopic(TOPIC_NAME, 3, (short) 1);
         KafkaAdminDAO.createTopic(newTopic, TopicConfig.CLEANUP_POLICY_DELETE);
 
@@ -56,11 +52,6 @@ public class Main {
         log.info("Sent "+jsonArray.size() + " messages");
 
         producer.close();
-
-
-
-
-
 
     }
 }
