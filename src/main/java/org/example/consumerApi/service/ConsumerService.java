@@ -29,11 +29,11 @@ public class ConsumerService {
         }
         log.info("Topic does exist: "+ topic);
 
-
         // assign partitions to consumer
         List<TopicPartition> partitionList = KafkaAdminDAO.getPartitions(topic);
         kafkaConsumerDAO.assignPartitions(partitionList);
 
+        // exception when offset is larger than what is available for at least one partition
         if(kafkaConsumerDAO.isOffsetGreaterThanMax(partitionList, offset)){
             log.error("Offset Greater than max - Offset "+ offset );
             throw new IllegalArgumentException("Offset provided "+offset+" greater than max for "+ topic);
@@ -43,11 +43,24 @@ public class ConsumerService {
         kafkaConsumerDAO.setOffsetForPartitions(partitionList, offset);
 
         List<ConsumerRecord<String, String>> output = new ArrayList<>();
+        // get records
+        consumeTopic(output, topic, amount);
+
+        int actualAmount = Math.min(amount, output.size());
+
+        log.info("Number of records expected: "+ amount);
+        log.info("Number of records output: "+ actualAmount);
+
+        return output.subList(0, actualAmount);
+    }
+
+    // consume for a given topic and amount
+    // output to given list
+    public void consumeTopic(List<ConsumerRecord<String, String>> output, String topic, int amount){
 
         int totalCount = 0;
         int maxRetries = 3;
         int retriesCount = 0;
-
 
         log.info("Polling START");
         // consume while it has less than amount to return or there are no messages left
@@ -70,15 +83,8 @@ public class ConsumerService {
         if(retriesCount >= maxRetries){
             log.info("Max retries reached: " + maxRetries);
         }
-
-        int actualAmount = Math.min(amount, output.size());
-
         log.info("Polling FINISH");
         log.info("Number of records consumed: "+ totalCount);
-        log.info("Number of records expected: "+ amount);
-        log.info("Number of records output: "+ actualAmount);
-
-        return output.subList(0, actualAmount);
 
     }
 
